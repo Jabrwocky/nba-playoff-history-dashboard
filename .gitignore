@@ -1,0 +1,16 @@
+We noticed a new environment has been created. Do you want to select it for the workspace folder?# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Raw/large data
+data/raw/
+*.zip
+
+# Power BI temp files
+*.tmp
+~$*
+
+# OS
+.DS_Store
+Thumbs.db
