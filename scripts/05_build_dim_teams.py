@@ -1,19 +1,23 @@
 from pathlib import Path
+
 import pandas as pd
 
 
+# Define input and output folders for the dashboard data pipeline.
 RAW_DIR = Path("data/raw")
 PROCESSED_DIR = Path("data/processed")
 
+# Create the processed data folder if it does not already exist.
 PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def clean_column_names(df):
     """
-    Convert columns to lowercase snake_case.
+    Convert DataFrame column names to lowercase snake_case.
     """
     df = df.copy()
 
+    # Standardize column names for consistent renaming and selection.
     df.columns = (
         df.columns
         .str.strip()
@@ -25,7 +29,9 @@ def clean_column_names(df):
 
 
 def main():
+    """Clean raw NBA team history data and save a team dimension table."""
 
+    # Identify the raw team histories file.
     teams_file = RAW_DIR / "TeamHistories.csv"
 
     print("Loading team histories...")
@@ -33,10 +39,10 @@ def main():
 
     print(f"Original shape: {df.shape}")
 
-    # Clean columns
+    # Standardize column names before renaming or selecting variables.
     df = clean_column_names(df)
 
-    # Rename columns
+    # Map raw team history columns to clearer analysis-friendly names.
     rename_dict = {
         "teamid": "team_id",
         "teamcity": "team_city",
@@ -48,14 +54,14 @@ def main():
 
     df = df.rename(columns=rename_dict)
 
-    # Create full display name
+    # Combine city and team name into one display-friendly team name.
     df["team_full_name"] = (
         df["team_city"].fillna("")
         + " "
         + df["team_name"].fillna("")
     ).str.strip()
 
-    # Select columns
+    # Keep only the fields needed for the team dimension table.
     final_columns = [
         "team_id",
         "team_full_name",
@@ -69,16 +75,18 @@ def main():
 
     df = df[final_columns]
 
-    # Sort nicely
+    # Sort team history records by team and active period.
     df = df.sort_values(
         by=["team_id", "season_founded"]
     )
 
+    # Define the cleaned output file path.
     output_file = (
         PROCESSED_DIR /
         "dim_teams.csv"
     )
 
+    # Save the cleaned team dimension table for dashboard joins.
     df.to_csv(output_file, index=False)
 
     print(f"\nSaved team dimension table:")
@@ -88,5 +96,6 @@ def main():
     print(df.head())
 
 
+# Run the cleaning script only when this file is executed directly.
 if __name__ == "__main__":
     main()
