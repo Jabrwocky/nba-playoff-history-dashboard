@@ -1,19 +1,23 @@
 from pathlib import Path
+
 import pandas as pd
 
 
+# Define input and output folders for the dashboard data pipeline.
 RAW_DIR = Path("data/raw")
 PROCESSED_DIR = Path("data/processed")
 
+# Create the processed data folder if it does not already exist.
 PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def clean_column_names(df):
     """
-    Convert columns to lowercase snake_case.
+    Convert DataFrame column names to lowercase snake_case.
     """
     df = df.copy()
 
+    # Standardize column names so they are easier to reference consistently.
     df.columns = (
         df.columns
         .str.strip()
@@ -25,7 +29,9 @@ def clean_column_names(df):
 
 
 def main():
+    """Clean raw NBA player statistics and save playoff box score data."""
 
+    # Identify the raw player statistics file.
     player_file = RAW_DIR / "PlayerStatistics.csv"
 
     print("Loading player statistics...")
@@ -33,15 +39,15 @@ def main():
 
     print(f"Original shape: {df.shape}")
 
-    # Clean column names
+    # Standardize column names before filtering or selecting variables.
     df = clean_column_names(df)
 
-    # Keep only playoff games
+    # Keep only playoff games for the playoff dashboard dataset.
     df = df[df["gametype"] == "Playoffs"].copy()
 
     print(f"Playoff-only shape: {df.shape}")
 
-    # Rename important columns
+    # Map raw column names to clearer analysis-friendly names.
     rename_dict = {
         "personid": "player_id",
         "gameid": "game_id",
@@ -69,33 +75,33 @@ def main():
 
     df = df.rename(columns=rename_dict)
 
-    # Create full player name
+    # Combine first and last name fields into one player display name.
     df["player_name"] = (
         df["firstname"].fillna("")
         + " "
         + df["lastname"].fillna("")
     ).str.strip()
 
-    # Convert game date
+    # Convert game dates to datetime format for sorting and season features.
     df["gamedatetimeest"] = pd.to_datetime(
         df["gamedatetimeest"],
         errors="coerce"
     )
 
-    # Create season year
+    # Extract the calendar year from the game date.
     df["season_year"] = (
         df["gamedatetimeest"]
         .dt.year.astype("Int64")
     )
 
-    # Create team-season key
+    # Create a unique team-season identifier for joins and dashboard grouping.
     df["team_season_key"] = (
         df["team_id"].astype("Int64").astype(str)
         + "_"
         + df["season_year"].astype(str)
     )
 
-    # Select final columns
+    # Keep only the fields needed for player-level playoff box score analysis.
     final_columns = [
         "game_id",
         "gamedatetimeest",
@@ -138,16 +144,18 @@ def main():
 
     df = df[final_columns]
 
-    # Sort nicely
+    # Sort records chronologically, then by game and player name.
     df = df.sort_values(
         by=["gamedatetimeest", "game_id", "player_name"]
     )
 
+    # Define the cleaned output file path.
     output_file = (
         PROCESSED_DIR /
         "processed_player_boxscores.csv"
     )
 
+    # Save the cleaned playoff box score dataset for dashboard use.
     df.to_csv(output_file, index=False)
 
     print(f"\nSaved cleaned playoff dataset:")
@@ -157,5 +165,6 @@ def main():
     print(df.head())
 
 
+# Run the cleaning script only when this file is executed directly.
 if __name__ == "__main__":
     main()
