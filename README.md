@@ -40,11 +40,10 @@ Deep-dive analysis of individual playoff careers featuring:
 - Dynamic KPI cards (PPG, RPG, APG, Stocks/Game, etc.)
 - Multi-metric playoff trend analysis
 - Interactive metric selection using Power BI field parameters
-- Drilldown functionality from season → round → game
 - Best playoff performances table using a custom playoff game score metric
 - Historical team-aware filtering
 
-### Team Dynasties
+### Team Spotlight
 Franchise-level playoff exploration featuring:
 - Historical team playoff trends
 - Team playoff game score metric
@@ -101,6 +100,7 @@ Used for:
 
 ## Project Structure
 
+```
 nba-playoff-history-dashboard/
 │
 ├── data/
@@ -120,6 +120,7 @@ nba-playoff-history-dashboard/
 ├── powerbi/
 │
 └── README.md
+```
 
 ---
 
@@ -174,7 +175,6 @@ This metric was designed to prioritize historically meaningful playoff wins over
 The dashboard uses several advanced Power BI features, including:
 
 - Field parameters for dynamic metric selection
-- Drilldown hierarchies
 - Context-aware filtering
 - Historical franchise relationships
 - Dynamic KPI cards
@@ -212,12 +212,9 @@ This allows the dashboard to remain reproducible and maintainable.
 
 Potential future additions include:
 - Era comparison page
-- Greatest playoff games explorer
-- Finals matchup explorer
 - Playoff upset analysis
 - Shot profile visualizations
 - Advanced efficiency metrics
-- Series-state modeling enhancements
 
 ---
 
